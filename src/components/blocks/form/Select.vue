@@ -20,7 +20,7 @@ import SelectChild from '@/components/blocks/form/SelectChild.vue'
             },
             {
                 id: 2,
-                name: 'Is12Z'
+                name: 'Is21Z'
             },
             {
                 id: 3,
