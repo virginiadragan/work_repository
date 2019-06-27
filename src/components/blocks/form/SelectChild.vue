@@ -46,7 +46,7 @@
         this.setItems()
       },
       selectedItem () {
-          this.items = this.students.filter(student => student.parents.group == this.selectedItem)
+          this.items = this.students.filter(student => student.parents.group === this.selectedItem)
       }
     },
     computed: {

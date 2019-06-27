@@ -46,10 +46,10 @@
         this.setItems()
       },
       selectedItem () {
-       let thiss = this
-       this.items = []
+        const thiss = this
+        this.items = []
         this.selectedItem.forEach(function(elm){
-          const students = thiss.students.filter(student => student.parents.group == elm)
+          const students = thiss.students.filter(student => student.parents.group === elm)
           thiss.items = thiss.items.concat(students) 
          })
       }

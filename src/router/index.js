@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Create from '@/components/pages/Create'
 import List from '@/components/pages/List'
+import TreeView from '@/components/pages/TreeView'
+import OpenNumPad from '@/components/pages/OpenNumPad'
 
 Vue.use(Router)
 export default new Router({
@@ -16,5 +18,15 @@ export default new Router({
             name: 'List',
             component: List
         },
+        {
+            path: '/TreeView',
+            name: 'TreeView',
+            component: TreeView
+        },
+        {
+            path: '/OpenNumPad',
+            name: 'OpenNumPad',
+            component: OpenNumPad
+        }
     ]
   })

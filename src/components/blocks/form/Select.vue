@@ -40,7 +40,10 @@ import SelectChild from '@/components/blocks/form/SelectChild.vue'
     },
     methods: {
       setItems () {
-        const objectField = {name: this.fieldName, value: this.selected}
+        const objectField = {
+          name: this.fieldName, 
+          value: this.selected
+        }
         this.$store.dispatch('setField', objectField)
       }
     }

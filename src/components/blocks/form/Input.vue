@@ -39,13 +39,13 @@
         >
           <v-text-field
             v-model="value"
-            @input="setName"
             :rules="fieldRules"
             :counter="10"
             label="Name"
             required
           ></v-text-field>
         </v-flex>
+        <v-btn @click="setName">Save</v-btn>
       </v-layout>
     </v-container>
   </v-form>
