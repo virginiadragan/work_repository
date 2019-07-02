@@ -1,33 +1,36 @@
 <script>
+import ArithmeticOperations from "@/components/blocks/formNumPad/ArithmeticOperations"
 export default {
     name:'NumPad',
     props: {
-      getValue: {
-        type: Function,
-        required: true
-      },
-      minVal: {
-        type: String,
-        required: true
-      },
-      maxVal: {
-        type: String,
-        required: true
-      }
+        getValue: {
+            type: Function,
+            required: true
+        },
+        minVal: {
+            type: String,
+            required: true
+        },
+        maxVal: {
+            type: String,
+            required: true
+        }
+    },
+    components: {
+        ArithmeticOperations
     },
     data () {
         return {
             value: '',
+            pointChar: '.',
             activeButtons: {
-                digits: [true, true, true, true, true, false, true, true, true, true],
+                digits: [true, true, true, true, true, true, true, true, true, true],
                 functional: {
                     ok: true,
-                    backspace: true,
-                    clear: true,
-                    sign: true,
-                    point: true
+                    sign: true
                 }
-            }    
+            },
+            show: false    
         }
     },
     computed: {
@@ -40,48 +43,136 @@ export default {
     },
     methods: {
         getDigit(digit) {
+            
             if(!this.activeButtons.digits[digit]) {
                 return
             }
-
-            console.log('pressed', digit)
             this.pushDigit(digit)
-            this.handleActiveButtons()            
+            this.handleActiveButtons()    
         },
         handleActiveButtons () {
             this.handleActiveDigitButtons()
+            this.handleActiveSignButton()  
+            this.handleActivePointButton() 
+            this.handleActiveBackspaceButton() 
+            this.handleActiveOkButton()
+        },
+        handleActiveOkButton () {
+            if(this.value < this.minVal) {
+                return true
+            }else{
+                return false
+            }
         },
         handleActiveDigitButtons () {
-            const max = this.getMaxPossibleDigitValue()
+            let max = this.getMaxPossibleDigitValue()
+             if(this.value === '0'){
+                max = 0
+            }
             for(let i = 0; i <= max; i++) {
                 this.activeButtons.digits.splice(i, 1, true)
             }
-            for(let i = max + 1; i <= 9; i++) {
+            console.log(max)
+            for(let i = max; i <= 9; i++) {
                 this.activeButtons.digits.splice(i, 1, false)
+            }
+        },
+        startWithiPoint () {
+            if(this.value.startsWith('.')){
+                this.value = '0'.concat(this.value)
             }
         },
         pushDigit(digit) {
             this.value += digit
+            this.startWithiPoint()   
             this.getValue(this.value)
         },
         getMaxPossibleDigitValue() {
-            const valueDigitsCount = this.value.length
-            
-            if(Number(this.value) > Number(this.maxVal)) {
-                return -1
-            }
-
-            if(Number(this.maxVal) <= 9 && valueDigitsCount === 0) {
-                return Number(this.maxVal)
-            }
-
-            if(!isNaN(Number(this.maxVal[valueDigitsCount + 1]))) {
-                return 9
-            }            
-            
-            return isNaN(Number(this.maxVal[valueDigitsCount])) ? -1 : Number(this.maxVal[valueDigitsCount])
+            this.activateAllDigits()
+            for (let i = 0; i <= 9; i++) {
+               if(Number(this.value.concat(i)) > Number(this.maxVal)){
+                    return i
+               }           
+           }
         },
-        getMaxValueWithNextDigit() {}
+        addPoint () { 
+            if(!this.hasPoint() && this.handleActivePointButton()){
+                this.activateAllDigits()
+                this.value += this.pointChar 
+                this.handleActiveDigitButtons()
+                this.getValue(this.value)
+            }
+        },
+        hasPoint () {
+            return this.value.includes(this.pointChar)
+        },
+        handleActivePointButton () {
+            if(Number(this.value) === Number(this.maxVal)){
+                return false
+            }else{
+                return true
+            }
+        },
+        clearAll () {
+            this.activeButtons.functional.sign = true
+            this.value = ''
+            this.activateAllDigits()
+            this.handleActiveBackspaceButton()
+            this.getValue(this.value)
+        },
+        activateAllDigits () {
+            for(let i = 0; i < this.activeButtons.digits.length; i++){
+                this.activeButtons.digits.splice(i, 1, true)
+            }
+        },
+        changeSign () {
+            if(this.value != ''){
+                this.removeOrAddSign()
+            }else{
+                this.value = '-'
+                this.activeButtons.functional.sign = !this.activeButtons.functional.sign
+            }
+            this.handleActiveDigitButtons()
+            this.getValue(this.value)
+        },
+        removeOrAddSign () {
+            if(this.value === '-'){
+                this.value = ''
+            }else{
+                this.changeValueSign()
+            }
+        },
+        changeValueSign () {
+            if(this.activeButtons.functional.sign){
+                this.value = (this.value*(-1)).toString()
+                this.activeButtons.functional.sign = !this.activeButtons.functional.sign
+            }else if(!this.handleActiveSignButton()){
+                this.value = (this.value*(-1)).toString()
+                this.activateAllDigits()
+            }  
+        },
+        handleActiveSignButton () {
+            if(this.value*(-1) < Number(this.minVal)){
+                this.activeButtons.functional.sign = false
+                return true
+            }
+        },
+        backspace () {
+            this.value = this.value.slice(0, -1)
+            this.handleActiveBackspaceButton()
+            this.handleActiveDigitButtons()
+            this.getValue(this.value)
+        },
+        handleActiveBackspaceButton () {
+            if(this.value != ''){
+                return false
+            }else{
+                return true
+            }
+        },
+        getCalculatedValue (calculatedValue) {
+            this.value = calculatedValue;
+        }
     }
 }
 </script>
@@ -91,19 +182,22 @@ export default {
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[7]}" @click="getDigit(7)">7</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[8]}" @click="getDigit(8)">8</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[9]}" @click="getDigit(9)">9</li>
-            <li :class="{'okBtn': true, 'disabled':!activeButtons.functional.backspace}" @click="backspase()">back</li>    
+            <li :class="{'okBtn': true, 'disabled':handleActiveBackspaceButton()}" @click="backspace()">back</li>    
             <li :class="{'letter clearl':true, 'disabled':!activeButtons.digits[4]}" @click="getDigit(4)">4</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[5]}" @click="getDigit(5)">5</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[6]}" @click="getDigit(6)">6</li> 
-            <li class="okBtn" @click="clearInput()">clear</li>  
+            <li :class="{'okBtn': true, 'disabled':handleActiveBackspaceButton()}" @click="clearAll()">clear</li>  
             <li :class="{'letter clearl':true, 'disabled':!activeButtons.digits[1]}" @click="getDigit(1)">1</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[2]}" @click="getDigit(2)">2</li>  
             <li :class="{'letter':true, 'disabled':!activeButtons.digits[3]}" @click="getDigit(3)">3</li>  
-            <li :class="{'okBtn':true, 'disabled':!activeButtons.functional.ok}">OK</li>
+            <li :class="{'okBtn':true, 'disabled':handleActiveOkButton()}">OK</li>
             <li :class="{'switch':true, 'disabled':!activeButtons.digits[0]}" @click="getDigit(0)">0</li>  
-            <li :class="{'point': true, 'disabled': !activeButtons.functional.point}"  @click="addPoint()">.</li>
-            <li :class="{'clear': true, 'disabled': !activeButtons.functional.sign}" @click="changeSign()">+/-</li>
+            <li :class="{'point': true, 'disabled': hasPoint() || !handleActivePointButton()}"  @click="addPoint()">.</li>
+            <li :class="{'clear': true, 'disabled': handleActiveSignButton()}" @click="changeSign()">+/-</li>
+            <li :class="{'okBtn':true, 'disabled':false}" @click="show = !show">Calc</li>
+            <arithmetic-operations v-if="show" :value="value" :getCalculatedValue="getCalculatedValue"/>
         </ul>  
+        
     </div> 
 </template>
 <style scoped>  

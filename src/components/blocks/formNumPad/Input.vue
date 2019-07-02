@@ -1,10 +1,9 @@
 <script>
-import NumPad from "@/components/blocks/formNumPad/NumPad";
+import SuperNumPad from "@/components/blocks/formNumPad/SuperNumPad"
 export default {
   name: "Input",
   components: {
-    NumPad,
-    SuperNumPad: () => import("@/components/blocks/formNumPad/SuperNumPad")
+    SuperNumPad//: () => import("@/components/blocks/formNumPad/SuperNumPad")
   },
   props: {
     minVal: {
@@ -20,6 +19,10 @@ export default {
     return {
       show: false,
       number: "",
+      rules: {
+        required: value => !!value || 'Required.',
+        min: v => v >= Number(this.minVal) || 'the number is too small',
+      }
     }
   },
   computed: {},
@@ -38,6 +41,7 @@ export default {
           <v-text-field
             v-model="number"
             :append-icon="show ? 'visibility' : 'visibility_off'"
+            :rules="[rules.required, rules.min]"
             type="text"
             readonly
             name="input-10-1"
@@ -47,6 +51,6 @@ export default {
       </v-layout>
     </v-container>
     <!--<NumPad v-if="show" :getValue="getValue" :minVal="minVal" :maxVal="maxVal"/>-->
-    <super-num-pad v-if="show" :getValue="getValue" :minVal="minVal" :maxVal="maxVal"/>
+    <super-num-pad v-if="show" :getValue="getValue" :minVal="minVal" :maxVal="maxVal" />
   </v-form>
 </template>

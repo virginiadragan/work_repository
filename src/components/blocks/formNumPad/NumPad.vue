@@ -39,10 +39,6 @@ export default {
         }
     },
     methods: {
-
-        disableButton(button){
-            
-        },
         getDigit (digit) {
             //TODO this.disableButton('OK')
             this.okBtnDisable()
@@ -106,7 +102,6 @@ export default {
         changeSign () {
             this.negativeSign = !this.negativeSign
             if(this.value != '' && !this.signDisable()){
-                console.log(!this.signDisable())
                 if(this.negativeSign){
                     this.value = '-'.concat(this.value)
                 }else{
@@ -114,6 +109,13 @@ export default {
                 }
             }
             this.getValue(this.value)
+        },
+        signDisable () {
+            if(-Number(this.value) < Number(this.minVal) || Number(this.minVal) >= 0){
+                return true
+            }else{
+                return false
+            }
         },
         hasPoint() {
             return this.value.includes(this.pointChar)
@@ -142,14 +144,7 @@ export default {
                 this.isDisable[i] = false
             }
         },
-        signDisable () {
-            console.log(-Number(this.value))
-            if(-Number(this.value) < Number(this.minVal) || Number(this.minVal) >= 0){
-                return true
-            }else{
-                return false
-            }
-        },
+        
         okBtnDisable () {
             if(Number(this.value) < Number(this.minVal) || this.value == ''){
                 return true
